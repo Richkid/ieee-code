@@ -1,4 +1,3 @@
-
 // Declaration of Motor Controller PINs
 #define MFR_A_PIN	11  // FRONT RIGHT MOTOR
 #define MFR_B_PIN	12 
@@ -64,7 +63,8 @@ void setup()
 int IRL_in;
 int diff = 0;
 int mPower = map(50, 0, 100, 80, 190);
-int x=120;
+int x=100;
+int a=90;
 void loop()
 {
 	
@@ -92,11 +92,11 @@ Serial.println("pivot right");
 			digitalWrite(MBL_A_PIN, LOW);
 			digitalWrite(MBL_B_PIN, HIGH);
 		
-			analogWrite(MFR_PWM_PIN, x);
-			analogWrite(MFL_PWM_PIN, x);
+			analogWrite(MFR_PWM_PIN, x-20);
+			analogWrite(MFL_PWM_PIN, x+15);
 			
-			analogWrite(MBR_PWM_PIN, x);
-			analogWrite(MBL_PWM_PIN, x);
+			analogWrite(MBR_PWM_PIN, a-20);
+			analogWrite(MBL_PWM_PIN, x+15);
 break;
 
 case 0b11111000: case 0b11111001: case 0b11111011:// Slight right
@@ -114,11 +114,11 @@ Serial.println("Slight right");
 			digitalWrite(MBL_A_PIN, LOW);
 			digitalWrite(MBL_B_PIN, HIGH);
 		
-			analogWrite(MFR_PWM_PIN, x);
-			analogWrite(MFL_PWM_PIN, x);
+			analogWrite(MFR_PWM_PIN, x-20);
+			analogWrite(MFL_PWM_PIN, x+10);
 			
-			analogWrite(MBR_PWM_PIN, x);
-			analogWrite(MBL_PWM_PIN, x);
+			analogWrite(MBR_PWM_PIN, a-20);
+			analogWrite(MBL_PWM_PIN, x+10);
 break;
 
 case 0b11110001: case 0b11110011:                // Adjust right 
@@ -136,14 +136,33 @@ Serial.println("Adjust right ");
 			digitalWrite(MBL_A_PIN, LOW);
 			digitalWrite(MBL_B_PIN, HIGH);
 		
-			analogWrite(MFR_PWM_PIN, x);
-			analogWrite(MFL_PWM_PIN, x);
+			analogWrite(MFR_PWM_PIN, x-20);
+			analogWrite(MFL_PWM_PIN, x+5);
 			
-			analogWrite(MBR_PWM_PIN, x);
-			analogWrite(MBL_PWM_PIN, x);
+			analogWrite(MBR_PWM_PIN, a-20);
+			analogWrite(MBL_PWM_PIN, x+5);
 break;
 
-case 0b11000000: case 0b11100000
+case 0b11100000: case 0b11110000: // turn right
+                         Serial.println("turn right");
+                         digitalWrite(MFR_A_PIN, LOW);
+			digitalWrite(MFR_B_PIN, HIGH);
+			
+			digitalWrite(MBR_A_PIN, HIGH);
+			digitalWrite(MBR_B_PIN, LOW);
+		
+			digitalWrite(MFL_A_PIN, LOW);
+			digitalWrite(MFL_B_PIN, HIGH);
+		
+			digitalWrite(MBL_A_PIN, LOW);
+			digitalWrite(MBL_B_PIN, HIGH);
+		
+			analogWrite(MFR_PWM_PIN, x-20);
+			analogWrite(MFL_PWM_PIN, x+30);
+			
+			analogWrite(MBR_PWM_PIN, a-20);
+			analogWrite(MBL_PWM_PIN, x+30);
+break;
 
 case 0b11100011: case 0b11100111: case 0b11000111: case 0b11000011:     // Straight 
 //DutyCycleA := DutyCycleB := 50 
@@ -163,8 +182,29 @@ Serial.println("Straight ");
 			analogWrite(MFR_PWM_PIN, x);
 			analogWrite(MFL_PWM_PIN, x);
 			
-			analogWrite(MBR_PWM_PIN, x-22);
+			analogWrite(MBR_PWM_PIN, a);
 			analogWrite(MBL_PWM_PIN, x);
+break;
+
+case 0b00000111: case 0b00001111: //turn left
+                        Serial.println("turn left");
+                        digitalWrite(MFR_A_PIN, LOW);
+			digitalWrite(MFR_B_PIN, HIGH);
+			
+			digitalWrite(MBR_A_PIN, HIGH);
+			digitalWrite(MBR_B_PIN, LOW);
+		
+			digitalWrite(MFL_A_PIN, LOW);
+			digitalWrite(MFL_B_PIN, HIGH);
+		
+			digitalWrite(MBL_A_PIN, LOW);
+			digitalWrite(MBL_B_PIN, HIGH);
+		
+			analogWrite(MFR_PWM_PIN, x+30);
+			analogWrite(MFL_PWM_PIN, x-20);
+			
+			analogWrite(MBR_PWM_PIN, a+30);
+			analogWrite(MBL_PWM_PIN, x-20);
 break;
 
 case 0b10001111: case 0b11001111:                 // Adjust left  
@@ -182,11 +222,11 @@ Serial.println("Adjust left");
 			digitalWrite(MBL_A_PIN, LOW);
 			digitalWrite(MBL_B_PIN, HIGH);
 		
-			analogWrite(MFR_PWM_PIN, x);
-			analogWrite(MFL_PWM_PIN, x);
+			analogWrite(MFR_PWM_PIN, x+5);
+			analogWrite(MFL_PWM_PIN, x-20);
 			
-			analogWrite(MBR_PWM_PIN, x);
-			analogWrite(MBL_PWM_PIN, x);
+			analogWrite(MBR_PWM_PIN, a+5);
+			analogWrite(MBL_PWM_PIN, x-20);
 break;
 
 case 0b00011111: case 0b10011111: case 0b11011111:       // Slight left
@@ -204,11 +244,11 @@ Serial.println("Slight left");
 			digitalWrite(MBL_A_PIN, LOW);
 			digitalWrite(MBL_B_PIN, HIGH);
 		
-			analogWrite(MFR_PWM_PIN, x);
-			analogWrite(MFL_PWM_PIN, x);
+			analogWrite(MFR_PWM_PIN, x+10);
+			analogWrite(MFL_PWM_PIN, x-20);
 			
-			analogWrite(MBR_PWM_PIN, x);
-			analogWrite(MBL_PWM_PIN, x);
+			analogWrite(MBR_PWM_PIN, a+10);
+			analogWrite(MBL_PWM_PIN, x-20);
 break;
 
 case 0b00111111: case 0b10111111: case 0b01111111:      // Pivot left  
@@ -226,11 +266,11 @@ Serial.println("Pivot left");
 			digitalWrite(MBL_A_PIN, LOW);
 			digitalWrite(MBL_B_PIN, HIGH);
 		
-			analogWrite(MFR_PWM_PIN, x);
-			analogWrite(MFL_PWM_PIN, x);
+			analogWrite(MFR_PWM_PIN, x+15);
+			analogWrite(MFL_PWM_PIN, x-20);
 			
-			analogWrite(MBR_PWM_PIN, x);
-			analogWrite(MBL_PWM_PIN, x);
+			analogWrite(MBR_PWM_PIN, a+15);
+			analogWrite(MBL_PWM_PIN, x-20);
 break;
 
 default :                                  // Anything else, slowly move forward   
@@ -239,11 +279,11 @@ default :                                  // Anything else, slowly move forward
 //turn right
 Serial.println(IRL_in, BIN);
 
-                        digitalWrite(MFR_A_PIN, HIGH);
-			digitalWrite(MFR_B_PIN, LOW);
+                        digitalWrite(MFR_A_PIN, LOW);
+			digitalWrite(MFR_B_PIN, HIGH);
 			
-			digitalWrite(MBR_A_PIN, LOW);
-			digitalWrite(MBR_B_PIN, HIGH);
+			digitalWrite(MBR_A_PIN, HIGH);
+			digitalWrite(MBR_B_PIN, LOW);
 		
 			digitalWrite(MFL_A_PIN, LOW);
 			digitalWrite(MFL_B_PIN, HIGH);
@@ -254,7 +294,7 @@ Serial.println(IRL_in, BIN);
 			analogWrite(MFR_PWM_PIN, x);
 			analogWrite(MFL_PWM_PIN, x);
 			
-			analogWrite(MBR_PWM_PIN, x);
+			analogWrite(MBR_PWM_PIN, a);
 			analogWrite(MBL_PWM_PIN, x);
 }
 }
