@@ -1,11 +1,65 @@
-// Declaration of Motor Controller PINs
-#define MFR_A_PIN	11  // FRONT RIGHT MOTOR
+#include <Servo.h>
+
+/********************************************************************************
+*	This code is used to test the paralax Infrared Line Follower		*
+*	along with 2 motor contorllers <insert name of motor contorller>	*
+*	and 4 motors of the strider GTX.					*
+*										*
+*	The IRF identifies and returns 0's/1's; 0's				*
+*	as white lines and 1's as black surfaces.				*
+**********************************************************************************/
+// Right Arm
+#define R_ARM1_PIN 		42
+#define R_ARM2_PIN 		44
+#define R_ARM3_PIN 		46
+#define R_ARM4_PIN 		48
+#define R_ARM5_PIN 		50
+#define R_ARMC_PIN 		52
+
+// Left Arm
+#define L_ARM1_PIN 		43
+#define L_ARM2_PIN 		45
+#define L_ARM3_PIN 		47
+#define L_ARM4_PIN 		49
+#define L_ARM5_PIN 		51
+#define L_ARMC_PIN 		53
+
+//**************************************//
+//	Remote Start Declaration	//
+//**************************************//
+#define LDR_PIN		0
+
+//**************************************//
+//      Servo Object Declaration     	//
+//**************************************//
+
+// Right Arm
+Servo rArm_Servo1;
+Servo rArm_Servo2;
+Servo rArm_Servo3;
+Servo rArm_Servo4;
+Servo rArm_Servo5;
+Servo rClaw;
+
+// Left Arm
+Servo lArm_Servo1;
+Servo lArm_Servo2;
+Servo lArm_Servo3;
+Servo lArm_Servo4;
+Servo lArm_Servo5;
+Servo lClaw;
+
+
+//*******************************************//
+//    Declaration of Motor Controller PINs   //
+//*******************************************//
+#define MFR_A_PIN	11  // FRONT RIGHT MOTOR 
 #define MFR_B_PIN	12 
-#define MFR_PWM_PIN     13 	// PULSE WIDTH MODULATION PIN
+#define MFR_PWM_PIN	13 	// PULSE WIDTH MODULATION PIN
 
 #define MFL_A_PIN	5	//FRONT LEFT MOTOR
 #define MFL_B_PIN 	6
-#define MFL_PWM_PIN     7	// PULSE WIDTH MODULATION PIN
+#define MFL_PWM_PIN	7	// PULSE WIDTH MODULATION PIN
 
 #define MBR_A_PIN	9	//BACK RIGHT MOTOR
 #define MBR_B_PIN	10
@@ -15,7 +69,9 @@
 #define MBL_B_PIN	4
 #define MBL_PWM_PIN	2 	// PULSE WIDTH MODULATION PIN 
 
-// Declaration of Parallax IR Line follower PINs
+//**************************************//
+//      Declaration of the IRF PINs     //
+//**************************************//
 #define IRL_PIN_s0	22
 #define IRL_PIN_s1	23
 #define IRL_PIN_s2	24
@@ -24,234 +80,252 @@
 #define IRL_PIN_s5	27
 #define IRL_PIN_s6	28
 #define IRL_PIN_s7	29
+#define IRL_PIN_EN	30
+
+int xFR = 147;
+int xFL = 157;
+int xBR = 130;
+int xBL = 130;
 
 
+/*
+void Stop_Motors(void);
+void IRL_Read(void);
+void Forward_Motors(void);
+*/
 
+//***********************************************//
+//    Stetting up peripherals to run code once   //
+//***********************************************//
 void setup()
 {
-	Serial.begin(9600);
-	// Setting up Motor PINs
-	pinMode(MFR_A_PIN,OUTPUT);
-	pinMode(MFR_B_PIN,OUTPUT);
-	pinMode(MFR_PWM_PIN,OUTPUT);// Controls speed- Pulse width modulation
+	Serial.begin(9600); //Opens serial connection at 9600 baud rate
+	
+	//*****************************//
+	//    Setting up Motor PINs    //
+	//*****************************//
+	pinMode(MFR_A_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(MFR_B_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(MFR_PWM_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
 	
 	// Motor Front Left Side
-	pinMode(MFL_A_PIN,OUTPUT);
-	pinMode(MFL_B_PIN,OUTPUT);
-	pinMode(MFL_PWM_PIN,OUTPUT);
+	pinMode(MFL_A_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(MFL_B_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(MFL_PWM_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
 	 
 	// Motor Back Right Side
-	pinMode(MBR_A_PIN,OUTPUT);
-	pinMode(MBR_B_PIN,OUTPUT);
-	pinMode(MBR_PWM_PIN,OUTPUT);
+	pinMode(MBR_A_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(MBR_B_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(MBR_PWM_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
 	
 	// Motor Back Left Side
-	pinMode(MBL_A_PIN,OUTPUT);
-	pinMode(MBL_B_PIN,OUTPUT);
-	pinMode(MBL_PWM_PIN,OUTPUT);
+	pinMode(MBL_A_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(MBL_B_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(MBL_PWM_PIN,OUTPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
 
-	pinMode(IRL_PIN_s0, INPUT);
-	pinMode(IRL_PIN_s1, INPUT);
-	pinMode(IRL_PIN_s3, INPUT);
-	pinMode(IRL_PIN_s4, INPUT);
-	pinMode(IRL_PIN_s5, INPUT);
-	pinMode(IRL_PIN_s6, INPUT);
-	pinMode(IRL_PIN_s7, INPUT);
+	pinMode(IRL_PIN_s0, INPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(IRL_PIN_s1, INPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(IRL_PIN_s3, INPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(IRL_PIN_s4, INPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(IRL_PIN_s5, INPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(IRL_PIN_s6, INPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as output
+	pinMode(IRL_PIN_s7, INPUT);		// Sets the pin mode of the I/O pin indicated by the #defined object as outpu
+	pinMode(IRL_PIN_EN, OUTPUT);
 	
+	digitalWrite(IRL_PIN_EN, HIGH);;
+	
+	//Initaizing Robotic Right Arm Angles
+	rArm_Servo1.write(150);
+	rArm_Servo2.write(170);
+	rArm_Servo3.write(180);
+	rArm_Servo4.write(180);
+	rArm_Servo5.write(180);
+	
+	//Initiaizing Robotic Left Arm Angles
+	lArm_Servo1.write(10);
+	lArm_Servo2.write(5);
+	lArm_Servo3.write(5);
+	lArm_Servo4.write(5);
+	lArm_Servo5.write(5);
+	
+	//Initiaizng Heavy Arm Claw to hold position.
+	lClaw.writeMicroseconds(1500);
+	
+	rArm_Servo1.attach(R_ARM1_PIN); // Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin	
+	rArm_Servo2.attach(R_ARM2_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	rArm_Servo3.attach(R_ARM3_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	rArm_Servo4.attach(R_ARM4_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	//rArm_Servo5.attach(R_ARM5_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	//rClaw.attach(R_ARMC_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	
+	lArm_Servo1.attach(L_ARM1_PIN); // Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	lArm_Servo2.attach(L_ARM2_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	lArm_Servo3.attach(L_ARM3_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	lArm_Servo4.attach(L_ARM4_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	//lArm_Servo5.attach(L_ARM5_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	lClaw.attach(L_ARMC_PIN);	// Attaches(inputs the pin out to the Servo object) class) the servos to their respective pin
+	
+
 }
 
-int IRL_in;
-int challenge=1;
+int IRL_in;					// declaration of the buffer to store the output of all  s0- s7 pins of the KRF
+
+
 void loop()
 {
+  IRL_Read();
+  switch(IRL_in)
+  {
+    case 0b11111111: //off the line
+    break;
+    
+    case 0b00000000: /// in a box
+    break;
+    
+    case 0b11000011: case 0b11000111: case 0b11100011: //forward
+    forward();
+    break;
+    
+    case 0b00011111: case 0b00001111: case 0b00000111: case 0b00000011: //left 90 angle
+    leftturn();
+    break;
+    
+    case 0b11111000: case 0b11110000: case 0b11100000: case 0b11000000: //right 90 angle
+    rightturn();
+    break;
+    
+    case 0b00111111: case 0b10011111: case 0b11001111: case 0b10001111: case 0b10000111: case 0b10000011: //left curve
+    leftcurve();
+    break;
+   
+    case 0b11110011: case 0b11111001: case 0b11111100: case 0b11110001: case 0b11100001: case 0b11000001: //right curve
+    rightcurve();
+    break;
+   
+    
+  }
+    
+}
+
+
+
+void forward()
+{
+        Serial.println("Forward");
+	digitalWrite(MFR_A_PIN, LOW);
+	digitalWrite(MFR_B_PIN, HIGH);
 	
-	IRL_in=0;
+	digitalWrite(MFL_A_PIN, LOW);
+	digitalWrite(MFL_B_PIN, HIGH);
+	
+	digitalWrite(MBR_A_PIN, HIGH);
+	digitalWrite(MBR_B_PIN, LOW);
+	
+	digitalWrite(MBL_A_PIN, LOW);
+	digitalWrite(MBL_B_PIN, HIGH);
+	
+	analogWrite(MFR_PWM_PIN, xFR);
+	analogWrite(MFL_PWM_PIN, xFL);
+	
+	analogWrite(MBR_PWM_PIN, xBR);
+	analogWrite(MBL_PWM_PIN, xBL);
+}
+
+void rightcurve()
+{
+        Serial.println("rightcurve");
+	digitalWrite(MFR_A_PIN, LOW);
+	digitalWrite(MFR_B_PIN, HIGH);
+	
+	digitalWrite(MFL_A_PIN, LOW);
+	digitalWrite(MFL_B_PIN, HIGH);
+	
+	digitalWrite(MBR_A_PIN, HIGH);
+	digitalWrite(MBR_B_PIN, LOW);
+	
+	digitalWrite(MBL_A_PIN, LOW);
+	digitalWrite(MBL_B_PIN, HIGH);
+	
+	analogWrite(MFR_PWM_PIN, 0);
+	analogWrite(MFL_PWM_PIN, xFL);
+	
+	analogWrite(MBR_PWM_PIN, 0);
+	analogWrite(MBL_PWM_PIN, xBL);
+}
+
+void rightturn()
+{
+        Serial.println("rughtturn");
+	digitalWrite(MFR_A_PIN, LOW);
+	digitalWrite(MFR_B_PIN, HIGH);
+	
+	digitalWrite(MFL_A_PIN, LOW);
+	digitalWrite(MFL_B_PIN, HIGH);
+	
+	digitalWrite(MBR_A_PIN, HIGH);
+	digitalWrite(MBR_B_PIN, LOW);
+	
+	digitalWrite(MBL_A_PIN, LOW);
+	digitalWrite(MBL_B_PIN, HIGH);
+	
+	analogWrite(MFR_PWM_PIN, 0);
+	analogWrite(MFL_PWM_PIN, 255);
+	
+	analogWrite(MBR_PWM_PIN, 0);
+	analogWrite(MBL_PWM_PIN, 255);
+}
+
+void leftcurve()
+{
+        Serial.println("leftcurve");
+	digitalWrite(MFR_A_PIN, LOW);
+	digitalWrite(MFR_B_PIN, HIGH);
+	
+	digitalWrite(MFL_A_PIN, LOW);
+	digitalWrite(MFL_B_PIN, HIGH);
+	
+	digitalWrite(MBR_A_PIN, HIGH);
+	digitalWrite(MBR_B_PIN, LOW);
+	
+	digitalWrite(MBL_A_PIN, LOW);
+	digitalWrite(MBL_B_PIN, HIGH);
+	
+	analogWrite(MFR_PWM_PIN, xFR);
+	analogWrite(MFL_PWM_PIN, 0);
+	
+	analogWrite(MBR_PWM_PIN, xBR);
+	analogWrite(MBL_PWM_PIN, 0);
+}
+
+void leftturn()
+{
+        Serial.println("leftturn");
+	digitalWrite(MFR_A_PIN, LOW);
+	digitalWrite(MFR_B_PIN, HIGH);
+	
+	digitalWrite(MFL_A_PIN, LOW);
+	digitalWrite(MFL_B_PIN, HIGH);
+	
+	digitalWrite(MBR_A_PIN, HIGH);
+	digitalWrite(MBR_B_PIN, LOW);
+	
+	digitalWrite(MBL_A_PIN, LOW);
+	digitalWrite(MBL_B_PIN, HIGH);
+	
+	analogWrite(MFR_PWM_PIN, 255);
+	analogWrite(MFL_PWM_PIN, 0);
+	
+	analogWrite(MBR_PWM_PIN, 255);
+	analogWrite(MBL_PWM_PIN, 0);
+}
+
+void IRL_Read()
+{
+	IRL_in = 0;
+	
 	for(int i = 0; i <= 7; i++)
 	{
 		IRL_in = (IRL_in << 1) + digitalRead(IRL_PIN_s7 - i);
-
 	}
-
-        if ((IRL_in == 0b00001111) || (IRL_in == 0b00000111)) //left
-        {Serial.println("left");
-                        digitalWrite(MFR_A_PIN, LOW);
-			digitalWrite(MFR_B_PIN, HIGH);
-			
-			digitalWrite(MBR_A_PIN, HIGH);
-			digitalWrite(MBR_B_PIN, LOW);
-		
-			digitalWrite(MFL_A_PIN, LOW);
-			digitalWrite(MFL_B_PIN, HIGH);
-		
-			digitalWrite(MBL_A_PIN, LOW);
-			digitalWrite(MBL_B_PIN, HIGH);
-		
-			analogWrite(MFR_PWM_PIN, 100);
-			analogWrite(MFL_PWM_PIN, 0);
-			
-			analogWrite(MBR_PWM_PIN, 100);
-			analogWrite(MBL_PWM_PIN, 0);
-         }
-        
-        else if ((IRL_in == 0b11110000) || (IRL_in == 0b11100000)) //right
-        {Serial.println("right");
-                        digitalWrite(MFR_A_PIN, LOW);
-			digitalWrite(MFR_B_PIN, HIGH);
-			
-			digitalWrite(MBR_A_PIN, HIGH);
-			digitalWrite(MBR_B_PIN, LOW);
-		
-			digitalWrite(MFL_A_PIN, LOW);
-			digitalWrite(MFL_B_PIN, HIGH);
-		
-			digitalWrite(MBL_A_PIN, LOW);
-			digitalWrite(MBL_B_PIN, HIGH);
-		
-			analogWrite(MFR_PWM_PIN, 0);
-			analogWrite(MFL_PWM_PIN, 100);
-			
-			analogWrite(MBR_PWM_PIN, 0);
-			analogWrite(MBL_PWM_PIN, 100);
-        }
-        
-        else if ((IRL_in == 0b10001111) || (IRL_in  == 0b00011111) || (IRL_in  == 0b00111111) || (IRL_in  == 0b01111111)) //curve left
-        {Serial.println("curve left");
-                        digitalWrite(MFR_A_PIN, LOW);
-			digitalWrite(MFR_B_PIN, HIGH);
-			
-			digitalWrite(MBR_A_PIN, HIGH);
-			digitalWrite(MBR_B_PIN, LOW);
-		
-			digitalWrite(MFL_A_PIN, LOW);
-			digitalWrite(MFL_B_PIN, HIGH);
-		
-			digitalWrite(MBL_A_PIN, LOW);
-			digitalWrite(MBL_B_PIN, HIGH);
-		
-			analogWrite(MFR_PWM_PIN, 100);
-			analogWrite(MFL_PWM_PIN, 50);
-			
-			analogWrite(MBR_PWM_PIN, 100);
-			analogWrite(MBL_PWM_PIN, 50);
-        }
-        
-        else if ((IRL_in == 0b11110001) || (IRL_in == 0b11111000) || (IRL_in == 0b11111100) || (IRL_in == 0b11111110)) //curve right
-        {Serial.println("curve right");
-                        digitalWrite(MFR_A_PIN, LOW);
-			digitalWrite(MFR_B_PIN, HIGH);
-			
-			digitalWrite(MBR_A_PIN, HIGH);
-			digitalWrite(MBR_B_PIN, LOW);
-		
-			digitalWrite(MFL_A_PIN, LOW);
-			digitalWrite(MFL_B_PIN, HIGH);
-		
-			digitalWrite(MBL_A_PIN, LOW);
-			digitalWrite(MBL_B_PIN, HIGH);
-		
-			analogWrite(MFR_PWM_PIN, 50);
-			analogWrite(MFL_PWM_PIN, 100);
-			
-			analogWrite(MBR_PWM_PIN, 50);
-			analogWrite(MBL_PWM_PIN, 100); 
-        }
-        
-        else if (IRL_in == 0b00000000) // full
-        {Serial.println("full");
-                        
-                        digitalWrite(MFR_A_PIN, LOW);
-			digitalWrite(MFR_B_PIN, HIGH);
-			
-			digitalWrite(MBR_A_PIN, HIGH);
-			digitalWrite(MBR_B_PIN, LOW);
-		
-			digitalWrite(MFL_A_PIN, LOW);
-			digitalWrite(MFL_B_PIN, HIGH);
-		
-			digitalWrite(MBL_A_PIN, LOW);
-			digitalWrite(MBL_B_PIN, HIGH);
-		
-			analogWrite(MFR_PWM_PIN, 0);
-			analogWrite(MFL_PWM_PIN, 0);
-			
-			analogWrite(MBR_PWM_PIN, 0);
-			analogWrite(MBL_PWM_PIN, 0);
-                       
-                       // These if statements are used to by the line follower to determine how many challenges have been done and reach end of game
-                       if (challenge = 5)
-                       {
-                         //stop
-                       }
-                       else if (challenge = 4)
-                       {}
-                       else if (challenge = 3)
-                       {}
-                       else if (challenge = 2)
-                       {}
-                       else if (challenge = 1)
-                       {}
-                       
-                       challenge=challenge+1;
-                       
-                       digitalWrite(MFR_A_PIN, LOW);
-			digitalWrite(MFR_B_PIN, HIGH);
-			
-			digitalWrite(MBR_A_PIN, HIGH);
-			digitalWrite(MBR_B_PIN, LOW);
-		
-			digitalWrite(MFL_A_PIN, HIGH);
-			digitalWrite(MFL_B_PIN, LOW);
-		
-			digitalWrite(MBL_A_PIN, HIGH);
-			digitalWrite(MBL_B_PIN, LOW);
-		
-			analogWrite(MFR_PWM_PIN, 100);
-			analogWrite(MFL_PWM_PIN, 100);
-			
-			analogWrite(MBR_PWM_PIN, 100);
-			analogWrite(MBL_PWM_PIN, 100);
-        }
-        
-        else if (IRL_in == 0b11111111) //nothing
-        {Serial.println("nothing");
-                        digitalWrite(MFR_A_PIN, LOW);
-			digitalWrite(MFR_B_PIN, HIGH);
-			
-			digitalWrite(MBR_A_PIN, HIGH);
-			digitalWrite(MBR_B_PIN, LOW);
-		
-			digitalWrite(MFL_A_PIN, LOW);
-			digitalWrite(MFL_B_PIN, HIGH);
-		
-			digitalWrite(MBL_A_PIN, LOW);
-			digitalWrite(MBL_B_PIN, HIGH);
-		
-			analogWrite(MFR_PWM_PIN, 100);
-			analogWrite(MFL_PWM_PIN, 100);
-			
-			analogWrite(MBR_PWM_PIN, 100);
-			analogWrite(MBL_PWM_PIN, 100); 
-        }
-        
-        else // foward
-        {Serial.println("forward");
-                        digitalWrite(MFR_A_PIN, LOW);
-			digitalWrite(MFR_B_PIN, HIGH);
-			
-			digitalWrite(MBR_A_PIN, HIGH);
-			digitalWrite(MBR_B_PIN, LOW);
-		
-			digitalWrite(MFL_A_PIN, LOW);
-			digitalWrite(MFL_B_PIN, HIGH);
-		
-			digitalWrite(MBL_A_PIN, LOW);
-			digitalWrite(MBL_B_PIN, HIGH);
-		
-			analogWrite(MFR_PWM_PIN, 100);
-			analogWrite(MFL_PWM_PIN, 100);
-			
-			analogWrite(MBR_PWM_PIN, 100);
-			analogWrite(MBL_PWM_PIN, 100);
-        }
-
+	Serial.println(IRL_in, BIN);
 }
