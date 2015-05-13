@@ -8,7 +8,7 @@
 *	The IRF identifies and returns 0's/1's; 0's				*
 *	as white lines and 1's as black surfaces.				*
 **********************************************************************************/
-// Right Arm
+// Right Arm /// pretty neat 
 #define R_ARM1_PIN 		42
 #define R_ARM2_PIN 		44
 #define R_ARM3_PIN 		46
